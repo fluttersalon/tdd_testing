@@ -105,4 +105,20 @@ void main() {
     expect(1, closeTo(2, 1));
     expect(3, closeTo(2, 1));
   });
+  test('abcd', () async {
+    final abcd = 'abcd';
+    expect(abcd, 'abcd');
+    expect(abcd, isNot('abc'));
+  });
+
+  test('equals(‘abcd’), equalsIgnoringCase(‘abcd’)', () async {
+    final abcd = 'abcd';
+    expect(abcd, equals('abcd'));
+
+    expect('abcd', equalsIgnoringCase('abcd'));
+    expect('ABCD', equalsIgnoringCase('abcd'));
+    expect('abCD', equalsIgnoringCase('abcd'));
+
+    expect('abcde', isNot(equalsIgnoringCase('abcd')));
+  });
 }
