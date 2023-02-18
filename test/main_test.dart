@@ -121,4 +121,22 @@ void main() {
 
     expect('abcde', isNot(equalsIgnoringCase('abcd')));
   });
+
+  test('equalsIgnoringWhitespace(‘abcd’)', () async {
+    expect('abcd', equalsIgnoringWhitespace('abcd'));
+    expect(' abcd', equalsIgnoringWhitespace('abcd'));
+    expect('abcd ', equalsIgnoringWhitespace('abcd'));
+    expect('abcd　', equalsIgnoringWhitespace('abcd'));
+
+    expect('ab cd', isNot(equalsIgnoringWhitespace('abcd')));
+  });
+
+  test('contains(‘a’)', () async {
+    expect('a', contains('a'));
+    expect('abc', contains('a'));
+    expect('dad', contains('a'));
+    expect('abc', contains('ab'));
+
+    expect('dd', isNot(contains('a')));
+  });
 }
