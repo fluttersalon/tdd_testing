@@ -139,4 +139,14 @@ void main() {
 
     expect('dd', isNot(contains('a')));
   });
+
+  test('artsWith(‘a’), endsWith(‘d’)', () async {
+    expect('abcd', startsWith('a'));
+    expect('abcd', startsWith('ab'));
+    expect('bcd', isNot(startsWith('ab')));
+
+    expect('abcd', endsWith('d'));
+    expect('abcd', endsWith('cd'));
+    expect('abcd', isNot('bc'));
+  });
 }
