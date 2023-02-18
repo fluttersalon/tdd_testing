@@ -29,6 +29,11 @@ void main() {
     expect(test5, same(test6));
   });
 
+  test('isNot', () async {
+    expect(1 + 1, 2);
+    expect(1 + 1, isNot(3));
+  });
+
   test('isTrue, isFalse', () async {
     final test = 1 == 1;
     expect(test, isTrue);
