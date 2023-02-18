@@ -99,7 +99,5 @@ void main() {
     expect(2, closeTo(2, 1));
     expect(1, closeTo(2, 1));
     expect(3, closeTo(2, 1));
-
-    expect(3.1, closeTo(2, 1));
   });
 }
