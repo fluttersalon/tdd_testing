@@ -149,4 +149,15 @@ void main() {
     expect('abcd', endsWith('cd'));
     expect('abcd', isNot('bc'));
   });
+
+  test('stringContainsInOrder([‘a’, ‘b’, ‘c’, ‘d’])', () async {
+    expect('abcd', stringContainsInOrder(['a', 'b', 'c', 'd']));
+    expect('aabcd', stringContainsInOrder(['a', 'b', 'c', 'd']));
+    expect('abAcDdD', stringContainsInOrder(['a', 'b', 'c', 'd']));
+
+    expect('abc', isNot(stringContainsInOrder(['a', 'b', 'c', 'd'])));
+    expect('abdc', isNot(stringContainsInOrder(['a', 'b', 'c', 'd'])));
+
+    expect('adbcd', stringContainsInOrder(['a', 'b', 'c', 'd']));
+  });
 }
