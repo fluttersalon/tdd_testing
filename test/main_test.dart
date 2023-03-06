@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -159,5 +161,228 @@ void main() {
     expect('abdc', isNot(stringContainsInOrder(['a', 'b', 'c', 'd'])));
 
     expect('adbcd', stringContainsInOrder(['a', 'b', 'c', 'd']));
+  });
+
+  group('Set, List, Map', () {
+    test('set', () async {
+      final set = {1, 2, 3};
+      expect(set, {1, 2, 3});
+      expect(set, {1, 3, 2});
+      expect(set, {1, 2, 3, 3});
+      expect(set, isNot({1, 2}));
+      expect(set, isNot({1, 2, 3, 4}));
+    });
+
+    test('list', () async {
+      final list = [1, 2, 3];
+      expect(list, [1, 2, 3]);
+      expect(list, isNot([1, 3, 2]));
+      expect(list, isNot([1, 2]));
+      expect(list, isNot([1, 2, 3, 4]));
+    });
+
+    test('map', () async {
+      final map = {1: '1', 2: '2', 3: '3'};
+      expect(map, {1: '1', 2: '2', 3: '3'});
+      expect(map, {1: '1', 3: '3', 2: '2'});
+
+      expect(map, isNot({1: '1', 2: '2'}));
+      expect(map, isNot({1: '1', 2: '2', 3: '3', 4: '4'}));
+      expect(map, isNot({1: '1', 2: '2', 4: '3'}));
+      expect(map, isNot({1: '1', 2: '2', 3: '4'}));
+    });
+
+    test('hasLength', () async {
+      expect({1, 2, 3}, hasLength(3));
+      expect([1, 2, 3], hasLength(3));
+      expect({1: '1', 2: '2', 3: '3'}, hasLength(3));
+
+      expect({1, 2}, isNot(hasLength(3)));
+      expect([1, 2], isNot(hasLength(3)));
+      expect({1: '1', 2: '2'}, isNot(hasLength(3)));
+    });
+
+    test('contains', () async {
+      expect({1, 2, 3}, contains(1));
+      expect([1, 2, 3], contains(1));
+      expect({1: '1', 2: '2', 3: '3'}, contains(1));
+
+      expect({1: '1', 2: '2', 4: '3'}, contains(4));
+      expect({1: 1, 2: 2, 3: 4}, isNot(contains(4)));
+      expect({1: '1', 2: '2', 4: '3'}, isNot(contains({1: '1'})));
+    });
+
+    test('containsAll', () async {
+      expect({1, 2, 3}, containsAll({1, 2}));
+      expect([1, 2, 3], containsAll([1, 2]));
+
+      expect({1, 2, 3}, isNot(containsAll({1, 2, 4})));
+      expect([1, 2, 3], isNot(containsAll([1, 2, 4])));
+
+      expect({1, 2, 3}, containsAll([1, 2]));
+      expect([1, 2, 3], containsAll({1, 2}));
+
+      expect({1: '1', 2: '2', 3: '3'}, isNot(containsAll([1, 2])));
+      expect({1: '1', 2: '2', 3: '3'}.keys, containsAll([1, 2]));
+      expect({1: '1', 2: '2', 3: '3'}.values, containsAll(['1', '2']));
+
+      // コンパイルエラー
+      //expect({1: '1', 2: '2', 4: '3'}, containsAll({1: '1'}));
+    });
+
+    test('containsAllInOrder', () async {
+      expect({1, 2, 3}, containsAllInOrder({1, 2}));
+      expect([1, 2, 3], containsAllInOrder([1, 2]));
+
+      expect({1, 2, 3}, isNot(containsAllInOrder({1, 2, 4})));
+      expect([1, 2, 3], isNot(containsAllInOrder([1, 2, 4])));
+
+      expect({1, 2, 3}, isNot(containsAllInOrder({3, 2})));
+      expect([1, 2, 3], isNot(containsAllInOrder([3, 2])));
+      expect({1, 2, 3}, containsAll({3, 2}));
+      expect([1, 2, 3], containsAll([3, 2]));
+
+      expect({1, 2, 3}, containsAllInOrder([1, 2]));
+      expect([1, 2, 3], containsAllInOrder({1, 2}));
+
+      expect({1: '1', 2: '2', 3: '3'}.keys, containsAllInOrder([1, 2]));
+      expect({1: '1', 2: '2', 3: '3'}.values, containsAllInOrder(['1', '2']));
+    });
+
+    test('orderedEquals', () async {
+      expect({1, 2, 3}, orderedEquals({1, 2, 3}));
+      expect([1, 2, 3], orderedEquals([1, 2, 3]));
+
+      expect({1, 2, 3}, orderedEquals([1, 2, 3]));
+      expect([1, 2, 3], orderedEquals({1, 2, 3}));
+
+      expect({1, 2, 3}, isNot(orderedEquals({1, 2})));
+      expect([1, 2, 3], isNot(orderedEquals([1, 2])));
+      expect({1, 2, 3}, isNot(orderedEquals({1, 2, 3, 4})));
+      expect([1, 2, 3], isNot(orderedEquals([1, 2, 3, 4])));
+      expect({1, 2, 3}, isNot(orderedEquals({1, 2, 4})));
+      expect([1, 2, 3], isNot(orderedEquals([1, 2, 4])));
+
+      expect({1, 2, 3}, orderedEquals({1, 3, 2}));
+      expect({1, 2, 3}, orderedEquals({1, 3, 2, 3}));
+      expect([1, 2, 3], isNot(orderedEquals([1, 3, 2])));
+      expect([1, 3, 2], isNot(orderedEquals([1, 2, 3])));
+    });
+
+    test('unorderedEquals', () async {
+      expect({1, 2, 3}, unorderedEquals({1, 2, 3}));
+      expect([1, 2, 3], unorderedEquals([1, 2, 3]));
+      expect({1, 2, 3}, unorderedEquals({1, 3, 2}));
+      expect([1, 2, 3], unorderedEquals([1, 3, 2]));
+      expect({1, 2, 3}, unorderedEquals([1, 3, 2]));
+      expect([1, 2, 3], unorderedEquals({1, 3, 2}));
+
+      expect({1, 2, 3}, isNot(unorderedEquals({1, 2})));
+      expect([1, 2, 3], isNot(unorderedEquals([1, 2])));
+      expect({1, 2, 3}, isNot(unorderedEquals({1, 2, 3, 4})));
+      expect([1, 2, 3], isNot(unorderedEquals([1, 2, 3, 4])));
+      expect({1, 2, 3}, isNot(unorderedEquals({1, 2, 4})));
+      expect([1, 2, 3], isNot(unorderedEquals([1, 2, 4])));
+    });
+  });
+
+  group('Stream', () {
+    StreamController<int> controllerWith12Close() {
+      final controller = StreamController<int>();
+      controller.add(1);
+      controller.add(2);
+      controller.close();
+      return controller;
+    }
+
+    test('emitsInOrder', () async {
+      final controller = StreamController<int>();
+      controller.add(1);
+      controller.add(2);
+      controller.close();
+      expect(controller.stream, emitsInOrder([1, 2, emitsDone]));
+
+      expect(controllerWith12Close().stream, emitsInOrder([1, 2, emitsDone]));
+    });
+
+    test('emitsDone', () async {
+      expect(controllerWith12Close().stream, emitsInOrder([1]));
+
+      //expect(controllerWith12Close().stream, emitsInOrder([1, emitsDone]));
+      // -> fault
+    });
+
+    test('emitsAnyOf', () async {
+      expect(controllerWith12Close().stream, emitsAnyOf([1]));
+      expect(controllerWith12Close().stream, emitsAnyOf([1, 2]));
+
+      //expect(controllerWith12Close().stream, emitsAnyOf([2]));
+      // →false
+    });
+
+    test('event number', () async {
+      final controller = StreamController<int>();
+      controller.add(1);
+      controller.close();
+      expect(await controller.stream.length, 1);
+    });
+
+    test('emitsInOrder with matcher', () async {
+      final controller = StreamController<int>();
+      controller.add(1);
+      controller.add(2);
+      controller.close();
+
+      expect(
+        controller.stream,
+        emitsInOrder([
+          emitsAnyOf([0, 1]),
+          lessThan(3),
+          emitsDone,
+        ]),
+      );
+    });
+  });
+
+  test('emitsInAnyOrder', () async {
+    final controller = StreamController<int>();
+    controller.add(1);
+    controller.add(2);
+    controller.close();
+    expect(controller.stream, emitsInAnyOrder([2, 1]));
+  });
+
+  test('emitsThrough', () async {
+    final controller = StreamController<int>();
+    controller.add(1);
+    controller.add(2);
+    controller.close();
+    expect(controller.stream, emitsThrough(1));
+  });
+
+  test('neverEmits', () async {
+    final controller = StreamController<int>();
+    controller.add(1);
+    controller.add(2);
+    controller.close();
+    expect(controller.stream, neverEmits(isNegative));
+  });
+
+  test('mayEmit', () async {
+    final controller = StreamController<int>();
+    controller.add(1);
+    controller.add(2);
+    controller.close();
+    // このmatcherは常に成功します
+    expect(controller.stream, mayEmit(3));
+  });
+
+  test('mayEmitMultiple', () async {
+    final controller = StreamController<int>();
+    controller.add(1);
+    controller.add(2);
+    controller.close();
+    // このmatcherは常に成功します
+    expect(controller.stream, mayEmitMultiple(3));
   });
 }
