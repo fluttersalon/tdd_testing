@@ -286,7 +286,15 @@ void main() {
     });
   });
 
-  group('Stream', () {
+  group('stream', () {
+    test('emitsInOrder', () async {
+      final controller = StreamController();
+      controller.add(1);
+      controller.add(2);
+      controller.close();
+      expect(controller.stream, emitsInOrder([1, 2, emitsDone]));
+    });
+
     StreamController<int> controllerWith12Close() {
       final controller = StreamController<int>();
       controller.add(1);
@@ -295,94 +303,77 @@ void main() {
       return controller;
     }
 
-    test('emitsInOrder', () async {
-      final controller = StreamController<int>();
-      controller.add(1);
-      controller.add(2);
-      controller.close();
-      expect(controller.stream, emitsInOrder([1, 2, emitsDone]));
-
+    test('controllerWith12Close', () async {
       expect(controllerWith12Close().stream, emitsInOrder([1, 2, emitsDone]));
     });
 
     test('emitsDone', () async {
       expect(controllerWith12Close().stream, emitsInOrder([1]));
-
-      //expect(controllerWith12Close().stream, emitsInOrder([1, emitsDone]));
-      // -> fault
+      expect(controllerWith12Close().stream, emitsInOrder([1, 2]));
+      expect(controllerWith12Close().stream, emitsInOrder([1, 2, emitsDone]));
+      // expect(controllerWith12Close().stream, emitsInOrder([1, emitsDone]));
     });
 
     test('emitsAnyOf', () async {
       expect(controllerWith12Close().stream, emitsAnyOf([1]));
       expect(controllerWith12Close().stream, emitsAnyOf([1, 2]));
+      expect(controllerWith12Close().stream, emitsAnyOf([1, 2, 3]));
 
       //expect(controllerWith12Close().stream, emitsAnyOf([2]));
-      // →false
+      //expect(controllerWith12Close().stream, 1);
     });
 
-    test('event number', () async {
-      final controller = StreamController<int>();
-      controller.add(1);
-      controller.close();
-      expect(await controller.stream.length, 1);
+    test('emitsInOrder with emitsAnyOf', () async {
+      expect(
+          controllerWith12Close().stream,
+          emitsInOrder([
+            emitsAnyOf([1, 2]),
+            emitsAnyOf([1, 2]),
+            emitsDone,
+          ]));
     });
 
-    test('emitsInOrder with matcher', () async {
+    test('event length', () async {
+      expect(await controllerWith12Close().stream.length, 2);
+    });
+
+    test('emitsInAnyOrder', () async {
+      expect(controllerWith12Close().stream, emitsInAnyOrder([1, 2]));
+      expect(controllerWith12Close().stream, emitsInAnyOrder([2, 1]));
+
+      expect(controllerWith12Close().stream, emitsInAnyOrder([1]));
+      // expect(controllerWith12Close().stream, emitsInAnyOrder([2]));
+      // expect(controllerWith12Close().stream, emitsInAnyOrder([2, 1, 3]));
+      //expect(controllerWith12Close().stream, emitsInAnyOrder([1, 2, 3]));
+      //expect(controllerWith12Close().stream, emitsInAnyOrder([3]));
+    });
+
+    test('emitsThrough', () async {
+      expect(controllerWith12Close().stream, emitsThrough(1));
+      expect(controllerWith12Close().stream, emitsThrough(2));
+      expect(controllerWith12Close().stream, emitsThrough(emitsDone));
+
+      //expect(controllerWith12Close().stream, emitsThrough(3));
       final controller = StreamController<int>();
       controller.add(1);
       controller.add(2);
-      controller.close();
-
-      expect(
-        controller.stream,
-        emitsInOrder([
-          emitsAnyOf([0, 1]),
-          lessThan(3),
-          emitsDone,
-        ]),
-      );
+      expect(controller.stream, emitsThrough(1));
     });
-  });
 
-  test('emitsInAnyOrder', () async {
-    final controller = StreamController<int>();
-    controller.add(1);
-    controller.add(2);
-    controller.close();
-    expect(controller.stream, emitsInAnyOrder([2, 1]));
-  });
+    test('neverEmits', () async {
+      expect(controllerWith12Close().stream, neverEmits(3));
+      expect(controllerWith12Close().stream, neverEmits([3, 4]));
+      expect(controllerWith12Close().stream, neverEmits(isNegative));
 
-  test('emitsThrough', () async {
-    final controller = StreamController<int>();
-    controller.add(1);
-    controller.add(2);
-    controller.close();
-    expect(controller.stream, emitsThrough(1));
-  });
+      //expect(controllerWith12Close().stream, neverEmits(1));
+      // expect(controllerWith12Close().stream, neverEmits(isPositive));
+    });
 
-  test('neverEmits', () async {
-    final controller = StreamController<int>();
-    controller.add(1);
-    controller.add(2);
-    controller.close();
-    expect(controller.stream, neverEmits(isNegative));
-  });
+    test('mayEmit, mayEmitMultiple', () async {
+      expect(controllerWith12Close().stream, mayEmit(3));
+      expect(controllerWith12Close().stream, mayEmitMultiple(3));
 
-  test('mayEmit', () async {
-    final controller = StreamController<int>();
-    controller.add(1);
-    controller.add(2);
-    controller.close();
-    // このmatcherは常に成功します
-    expect(controller.stream, mayEmit(3));
-  });
-
-  test('mayEmitMultiple', () async {
-    final controller = StreamController<int>();
-    controller.add(1);
-    controller.add(2);
-    controller.close();
-    // このmatcherは常に成功します
-    expect(controller.stream, mayEmitMultiple(3));
+      expect(controllerWith12Close().stream, mayEmit([1, 3]));
+    });
   });
 }
